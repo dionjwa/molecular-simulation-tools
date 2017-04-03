@@ -6,12 +6,6 @@ echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
 echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
 echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG"
 
-#First check linting
-echo "Linting server source"
-docker run --rm -it --workdir /src -v $PWD/server:/src/ -v $PWD/server/.eslintrc:/src/.eslintrc -v $PWD/server/.eslintignore:/src/.eslintignore manala/lint-js eslint eslint .
-# JUSTIN TODO?
-# echo "Linting client source"
-
 #Temporary workaround getting the viewer code into the build
 if [ ! -z "$TIRRENU_URL" ]; then
 	mkdir -p ./molecule_viewer/
