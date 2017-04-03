@@ -20,9 +20,7 @@ const dbUtils = {
       ))
     ).then(() => {
       log.debug('Initialized db.');
-    }).catch((err) => {
-      log.error({ error: err, message: 'Error in db_utils.initialize' });
-    });
+    }).catch(log.error);
   },
 
   /**
@@ -41,14 +39,12 @@ const dbUtils = {
         ]).then(() =>
           redis.set(dbConstants.REDIS_VERSION, 1).then(() => {
             log.debug('DB migrated to v1.');
-          })
-        );
+          }).catch(log.error)
+        ).catch(log.error);
       }
 
       return Promise.resolve();
-    }).catch((err) => {
-      log.error({ error: err, message: 'Error in db_utils.migrate' });
-    });
+    }).catch(log.error);
   },
 
   /**
@@ -68,9 +64,7 @@ const dbUtils = {
 
       return redis.hset(hashName, appData.id, JSON.stringify(appData)).then(() => {
         log.debug(`Seeded app ${appData.id}.`);
-      }).catch((err) => {
-        log.error({ error: err, message: 'Error in db_utils.seedApp' });
-      });
+      }).catch(log.error);
     });
   },
 };
