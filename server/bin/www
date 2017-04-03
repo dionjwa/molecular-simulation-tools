@@ -19,16 +19,32 @@ if (!('toJSON' in Error.prototype)) {
   });
 }
 
+/* Load the logger first, since we use it early */
+require('dotenv').config();
+const log = require('../utils/log');
+
+/* Sometimes Bluepird promises need extra dev help */
+if (process.env.NODE_ENV === 'development') {
+  process.on('unhandledRejection', (reason, promise) => {
+    // See Promise.onPossiblyUnhandledRejection for parameter documentation
+    log.error(`unhandledRejection reason=${reason} promise=${promise}`);
+  });
+
+  process.on('rejectionHandled', (promise) => {
+    // See Promise.onUnhandledRejectionHandled for parameter documentation
+    log.debug(`rejectionHandled promise=${promise}`);
+  });
+}
+
 /**
  * Module dependencies.
  */
-require('dotenv').config();
+
 const http = require('http');
 const httpProxy = require('http-proxy');
 const retry = require('bluebird-retry');
 const app = require('../main/server');
 const dbUtils = require('../utils/db_utils');
-const log = require('../utils/log');
 const fluentSender = require('../utils/fluent_sender');
 const redis = require('../utils/redis');
 const testUtils = require('../test/test_utils');
@@ -86,9 +102,15 @@ function onListening(addr) {
       testUtils.runTestCCC,
       { max_tries: 20, interval: 1000 }
     ).then((status) => {
-      log.info({ message: 'Test CCC connection', success: status.success });
+      log.info(`Internal functional tests: ${status.success ? 'OK' : 'Failed'} ${status.error != null ? JSON.stringify(status.error) : ''}`);
+      if (process.env.TRAVIS === '1') {
+        process.exit(status.success ? 0 : -1);
+      }
     }).catch((err) => {
       log.error({ status: 'Test failed:', error: JSON.stringify(err) });
+      if (process.env.TRAVIS === '1') {
+        process.exit(-1);
+      }
     });
   };
 }
@@ -110,7 +132,7 @@ dbUtils.initialize(redis).then(() => {
   server.on('listening', onListening(server.address()));
   server.timeout = 8 * 60 * 1000; // 8 minutes
 }).catch((err) => {
-  log.error({ error: err });
+  log.error({ error: err.toJSON() });
 });
 
 /**
@@ -155,9 +177,13 @@ process.on('uncaughtException', (err) => {
   console.error(JSON.stringify(errObj, null, ''));
   // Ensure crash is logged to fluent before exiting.
   try {
-    fluentSender.emit('mst', errObj, null, () => {
+    if (process.env.FLUENT) {
+      fluentSender.emit('mst', errObj, null, () => {
+        process.exit(1);
+      });
+    } else {
       process.exit(1);
-    });
+    }
   } catch (e) {
     process.exit(1);
   }

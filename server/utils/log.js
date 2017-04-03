@@ -9,43 +9,47 @@ const streams = [
   },
 ];
 
-streams.push({
-  level: bunyan.DEBUG,
-  type: 'raw', // use 'raw' to get raw log record objects
-  stream: {
-    write(obj, cb) {
-      switch (typeof obj) {
-        case 'object':
-          break;
-        default:
-          obj = { message: toString(obj) };
-      }
-      if (obj.time) {
-        obj['@timestamp'] = obj.time.toISOString();
-      }
-      if (!obj['@timestamp']) {
-        obj['@timestamp'] = new Date().toISOString();
-      }
-      delete obj.time;
-      if (obj.error && typeof obj.error === 'object') {
-        try {
-          obj.error = JSON.stringify(obj.error);
-        } catch (e) {
-          console.error(e);
+if (!(process.env.FLUENT === '0' || process.env.FLUENT === 'false')) {
+  streams.push({
+    level: bunyan.DEBUG,
+    type: 'raw', // use 'raw' to get raw log record objects
+    stream: {
+      write(obj, cb) {
+        let logObj = null;
+        switch (typeof obj) {
+          case 'object':
+            logObj = obj;
+            break;
+          default:
+            logObj = { message: toString(obj) };
         }
-      }
-      if (obj.err && typeof obj.err === 'object') {
-        try {
-          obj.err = JSON.stringify(obj.err);
-        } catch (e) {
-          console.error(e);
+        if (logObj.time) {
+          logObj['@timestamp'] = logObj.time.toISOString();
         }
-      }
+        if (!logObj['@timestamp']) {
+          logObj['@timestamp'] = new Date().toISOString();
+        }
+        delete logObj.time;
+        if (logObj.error && typeof logObj.error === 'object') {
+          try {
+            logObj.error = JSON.stringify(logObj.error);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        if (logObj.err && typeof logObj.err === 'object') {
+          try {
+            logObj.err = JSON.stringify(logObj.err);
+          } catch (e) {
+            console.error(e);
+          }
+        }
 
-      fluentSender.emit('mst', obj, null, cb);
+        fluentSender.emit('mst', logObj, null, cb);
+      },
     },
-  },
-});
+  });
+}
 
 const log = bunyan.createLogger({
   name: 'mst',
