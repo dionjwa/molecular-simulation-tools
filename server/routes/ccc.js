@@ -47,13 +47,7 @@ router.post('/cwl/:sessionId/:widgetId', (req, res, next) => {
   const sessionId = req.params.sessionId;
   const widgetId = req.params.widgetId;
 
-  const git = req.body.git;
-  const sha = req.body.sha;
-  const cwl = req.body.cwl;
-  const inputFile = req.body.input;
-  const inputs = req.body.inputs;
-
-  config.ccc.run(sessionId, widgetId, req.body)
+  config.ccc.cwl(sessionId, widgetId, req.body)
     .then((result) => {
       assert(result.jobId);
       res.json({ sessionId, jobId: result.jobId });
