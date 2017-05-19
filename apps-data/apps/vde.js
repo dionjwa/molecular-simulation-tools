@@ -2,71 +2,33 @@ const widgetsConstants = require('molecular-design-applications-shared').widgets
 
 module.exports = {
   title: 'Calculate electronic vertical detachment energy',
-  version: "0.1-alpha",
-  meta: {
-    name: "VDE",
-    version: "0.0.1",
-    description: "Calculate the electron binding energy of an anionic doublet species using DFT",
-    git: "https://github.com/Autodesk/molecular-simulation-tools",
-    authors: [],
-    display: {
-      selectLigands: false,
-      bgColor: '#292E60',
-      bgIndex: 3,
-      color: '#2FE695',
-      comingSoon: false,
-      creatorImage: '/img/logo2.png',
-    }
-  },
+  selectLigands: false,
+  bgColor: '#292E60',
+  bgIndex: 3,
+  color: '#2FE695',
+  comingSoon: false,
+  creatorImage: '/img/logo2.png',
+  description: 'Calculate the electron binding energy of an' +
+      ' anionic doublet species using DFT',
   widgets: [
     {
-      id: "load_pdb",
-      type: widgetsConstants.RUN_DOCKER_CONTAINER_FAST,
-      meta: {
-        title: 'Load Molecule',
-      },
-      config: {
-        image: "avirshup/mst:workflows-0.0.alpha5",
-        command: ["minimize", "--preprocess", "/inputs/PDB_DATA"],
-      },
-      in: [
-        { id: 'PDB_DATA' },
-      ],
-      out: [
+      id: widgetsConstants.LOAD,
+      type: widgetsConstants.LOAD,
+      title: 'Load Molecule',
+      outputs: [
         { id: 'prep.pdb' },
         { id: 'prep.json' },
         { id: 'workflow_state.dill' },
       ],
     },
     {
-      id: "clean_pdb",
-      type: widgetsConstants.RUN_DOCKER_CONTAINER,
-      meta: {
-        title: 'Run',
-      },
-      config: {
-        image: "avirshup/mst:workflows-0.0.alpha5",
-        command: ["minimize", "--preprocess", "/inputs/PDB_DATA"],
-      },
+      id: widgetsConstants.RUN,
+      type: widgetsConstants.RUN,
+      title: 'Run',
       inputs: [
-        {
-          name: "prep.pdb",
-          source: {
-            id: "load_pdb", pipe: "prep.pdb"
-          }
-        },
-        {
-          name: "prep.json",
-          "source": {
-            id: "load_pdb", pipe: "prep.json"
-          }
-        },
-        {
-          name: "workflow_state.dill",
-          "source": {
-            id: "load_pdb", pipe: "workflow_state.dill"
-          }
-        }
+        { id: 'prep.pdb', source: widgetsConstants.LOAD },
+        { id: 'prep.json', source: widgetsConstants.LOAD },
+        { id: 'workflow_state.dill', source: widgetsConstants.LOAD },
       ],
       outputs: [
         { id: 'final_structure.pdb' },
