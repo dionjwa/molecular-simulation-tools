@@ -18,40 +18,6 @@ class AppRouter extends React.Component {
     };
 
     this.onRequestCloseSnackbar = this.onRequestCloseSnackbar.bind(this);
-
-    /*Websocket for getting session info*/
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    const port = window.location.port !== '' ? ':' + window.location.port : '';
-    const wsUrl = `${protocol}//${hostname}${port}`;
-    this.ws = new WebSocket(wsUrl, {
-        perMessageDeflate: false
-      });
-    this.ws.on('open', () => {
-      //See README.md
-      ws.send(JSON.stringify({
-        jsonrpc: '2.0',
-        method: jsonrpcConstants.SESSION,
-        params: { sessionId: this.props.runId }
-      }));
-    });
-
-    this.ws.on('error', (err) => {
-      console.error('Websocket error', err);
-    });
-
-    this.ws.on('message', (data) => {
-      const jsonrpc = JSON.parse(data);
-      //See README.md
-      switch (jsonrpc.method) {
-        case jsonrpcConstants.SESSION_UPDATE:
-          //TODO: update the widget pipe data here
-          break;
-        default:
-          console.warn({ message: 'Unhandled websocket message', data });
-          break;
-      }
-    });
   }
 
   componentWillUnmount() {
@@ -88,10 +54,54 @@ class AppRouter extends React.Component {
   // Set up page for app/run distinction
   initialize(appId, runId) {
     if (runId) {
+      initializeWebsocket(runId);
       return this.props.initializeRun(appId, runId);
     }
 
     return this.props.initializeApp(appId);
+  }
+
+  // Set up page for app/run distinction
+  initializeWebsocket(runId) {
+    if (this.ws) {
+      this.ws.close();
+    }
+
+    if (runId) {
+      /*Websocket for getting session info*/
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port !== '' ? ':' + window.location.port : '';
+      const wsUrl = `${protocol}//${hostname}${port}`;
+      this.ws = new WebSocket(wsUrl, {
+        perMessageDeflate: false
+      });
+      this.ws.on('open', () => {
+        //See README.md
+        ws.send(JSON.stringify({
+          jsonrpc: '2.0',
+          method: jsonrpcConstants.SESSION,
+          params: { sessionId: runId }
+        }));
+      });
+
+      this.ws.on('error', (err) => {
+        console.error('Websocket error', err);
+      });
+
+      this.ws.on('message', (data) => {
+        const jsonrpc = JSON.parse(data);
+        //See README.md
+        switch (jsonrpc.method) {
+          case jsonrpcConstants.SESSION_UPDATE:
+            //TODO: update the widget pipe data here
+            break;
+          default:
+            console.warn({ message: 'Unhandled websocket message', data });
+            break;
+        }
+      });
+    }
   }
 
   render() {
