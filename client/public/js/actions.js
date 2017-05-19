@@ -468,7 +468,7 @@ export function runCCC(sessionId, widgetId, cccBlob) {
 
     const API_URL = process.env.API_URL || '';
 
-    axios.post(`${API_URL}/v1/ccc/run`, cccTurboBlob)
+    axios.post(`${API_URL}/v1/ccc/run`, cccBlob)
       .then((result) => {
         console.log(result);
         //TODO: pipe data back into the state
