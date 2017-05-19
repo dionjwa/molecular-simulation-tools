@@ -457,3 +457,31 @@ export function runCCCTurbo(sessionId, widgetId, cccTurboBlob) {
       });
   };
 }
+
+export function runCCC(sessionId, widgetId, cccBlob) {
+  return (dispatch) => {
+    dispatch({
+      type: actionConstants.CCC_RUN_SUBMITTED,
+      sessionId,
+      widgetId,
+    });
+
+    const API_URL = process.env.API_URL || '';
+
+    axios.post(`${API_URL}/v1/ccc/run`, cccTurboBlob)
+      .then((result) => {
+        console.log(result);
+        //TODO: pipe data back into the state
+        //don't forget to check errors
+      })
+      .catch((err) => {
+        console.error(err);
+        dispatch({
+          type: actionConstants.CCC_RUN_ERROR,
+          sessionId,
+          widgetId,
+          error: err
+        });
+      });
+  };
+}
