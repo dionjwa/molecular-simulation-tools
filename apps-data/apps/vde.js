@@ -15,6 +15,10 @@ module.exports = {
       id: widgetsConstants.LOAD,
       type: widgetsConstants.LOAD,
       title: 'Load Molecule',
+      config: {
+        image: 'mst:workflows-0.0.alpha4',
+        command: ['vde', '--preprocess', '/inputs/input.pdb', '--outputdir', '/outputs/'],
+      },
       outputs: [
         { id: 'prep.pdb' },
         { id: 'prep.json' },
@@ -25,6 +29,10 @@ module.exports = {
       id: widgetsConstants.RUN,
       type: widgetsConstants.RUN,
       title: 'Run',
+      config: {
+        image: 'mst:workflows-0.0.alpha4',
+        command: ['vde', '--restart', '/inputs/workflow_state.dill', '--outputdir', '/outputs/'],
+      },
       inputs: [
         { id: 'prep.pdb', source: widgetsConstants.LOAD },
         { id: 'prep.json', source: widgetsConstants.LOAD },

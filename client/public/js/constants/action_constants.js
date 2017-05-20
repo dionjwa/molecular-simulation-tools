@@ -28,9 +28,6 @@ const actionConstants = keyMirror({
   CCC_RUN_SUBMITTED: null,
   CCC_RUN_RESPONSE: null,
   CCC_RUN_ERROR: null,
-  CCC_RUN_TURBO_SUBMITTED: null,
-  CCC_RUN_TURBO_RESPONSE: null,
-  CCC_RUN_TURBO_ERROR: null,
 });
 
 export default actionConstants;

@@ -20,13 +20,6 @@ class AppRouter extends React.Component {
     this.onRequestCloseSnackbar = this.onRequestCloseSnackbar.bind(this);
   }
 
-  componentWillUnmount() {
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     const fetching = nextProps.app.fetching;
     const changingAppId = nextProps.appId &&
@@ -45,6 +38,13 @@ class AppRouter extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+
   onRequestCloseSnackbar() {
     this.setState({
       snackbarClosed: true,
@@ -54,7 +54,7 @@ class AppRouter extends React.Component {
   // Set up page for app/run distinction
   initialize(appId, runId) {
     if (runId) {
-      initializeWebsocket(runId);
+      this.initializeWebsocket(runId);
       return this.props.initializeRun(appId, runId);
     }
 
@@ -68,20 +68,20 @@ class AppRouter extends React.Component {
     }
 
     if (runId) {
-      /*Websocket for getting session info*/
+      /* Websocket for getting session info */
       const protocol = window.location.protocol;
       const hostname = window.location.hostname;
-      const port = window.location.port !== '' ? ':' + window.location.port : '';
+      const port = window.location.port !== '' ? `:${window.location.port}` : '';
       const wsUrl = `${protocol}//${hostname}${port}`;
       this.ws = new WebSocket(wsUrl, {
-        perMessageDeflate: false
+        perMessageDeflate: false,
       });
       this.ws.on('open', () => {
-        //See README.md
-        ws.send(JSON.stringify({
+        // See README.md
+        this.ws.send(JSON.stringify({
           jsonrpc: '2.0',
           method: jsonrpcConstants.SESSION,
-          params: { sessionId: runId }
+          params: { sessionId: runId },
         }));
       });
 
@@ -91,10 +91,10 @@ class AppRouter extends React.Component {
 
       this.ws.on('message', (data) => {
         const jsonrpc = JSON.parse(data);
-        //See README.md
+        // See README.md
         switch (jsonrpc.method) {
           case jsonrpcConstants.SESSION_UPDATE:
-            //TODO: update the widget pipe data here
+            // TODO: update the widget pipe data here
             break;
           default:
             console.warn({ message: 'Unhandled websocket message', data });

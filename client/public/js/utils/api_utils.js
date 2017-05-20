@@ -252,6 +252,32 @@ const apiUtils = {
       pipeDatasByWidgetServer.toJS(),
     );
   },
+
+  /**
+   * Executes a ccc turbo job on the server
+   * See README.md ##### POST /ccc/runturbo
+   * @param  {[type]} cccTurboJobConfig [See README.md]
+   * @param  {[type]} inputMap          [See README.md]
+   * @return {[type]}                   [See README.md]
+   */
+  runCCCTurbo(cccTurboJobConfig, inputMap) {
+    const blob = cccTurboJobConfig;
+    blob.inputs = inputMap;
+    axios.post(`${API_URL}/v1/ccc/run/turbo`, blob);
+  },
+
+  /**
+   * Executes a ccc turbo job on the server
+   * See README.md ##### POST /ccc/runturbo
+   * @param  {[type]} cccTurboJobConfig [See README.md]
+   * @param  {[type]} inputMap          [See README.md]
+   * @return {[type]}                   [See README.md]
+   */
+  runCCC(runId, widgetId, cccJobConfig, inputMap) {
+    const blob = cccJobConfig;
+    blob.inputs = inputMap;
+    axios.post(`${API_URL}/v1/ccc/run/${runId}/:widgetId`, blob);
+  },
 };
 
 export default apiUtils;

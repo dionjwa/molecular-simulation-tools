@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { browserHistory } from 'react-router';
 import { List as IList } from 'immutable';
 import isEmail from 'validator/lib/isEmail';
@@ -52,6 +51,7 @@ export function initializeRun(appId, runId) {
 
     let app;
     let run;
+    console.log(`initializeRunDispatch appId=${appId} runId=${runId}`);
     try {
       app = await apiUtils.getApp(appId);
       run = await apiUtils.getRun(runId);
@@ -430,57 +430,51 @@ export function changeMorph(morph) {
   };
 }
 
-export function runCCCTurbo(sessionId, widgetId, cccTurboBlob) {
-  return (dispatch) => {
-    dispatch({
-      type: actionConstants.CCC_RUN_TURBO_SUBMITTED,
-      sessionId,
-      widgetId,
-    });
-
-    const API_URL = process.env.API_URL || '';
-
-    axios.post(`${API_URL}/v1/ccc/run/turbo`, cccTurboBlob)
-      .then((result) => {
-        console.log(result);
-        //TODO: pipe data back into the state
-        //don't forget to check errors
-      })
-      .catch((err) => {
-        console.error(err);
-        dispatch({
-          type: actionConstants.CCC_RUN_TURBO_ERROR,
-          sessionId,
-          widgetId,
-          error: err
-        });
-      });
-  };
-}
-
-export function runCCC(sessionId, widgetId, cccBlob) {
+export function runCCC(runId, widgetId, cccConfig, inputMap) {
   return (dispatch) => {
     dispatch({
       type: actionConstants.CCC_RUN_SUBMITTED,
-      sessionId,
+      runId,
       widgetId,
     });
 
-    const API_URL = process.env.API_URL || '';
-
-    axios.post(`${API_URL}/v1/ccc/run`, cccBlob)
+    apiUtils.runCCC(runId, widgetId, cccConfig, inputMap)
       .then((result) => {
         console.log(result);
-        //TODO: pipe data back into the state
-        //don't forget to check errors
+        if (result.exitCode !== 1) {
+          dispatch({
+            type: actionConstants.CCC_RUN_ERROR,
+            runId,
+            widgetId,
+            error: new Error('Non-zero exit code on ccc run'),
+            result,
+          });
+        } else if (result.error) {
+          dispatch({
+            type: actionConstants.CCC_RUN_ERROR,
+            runId,
+            widgetId,
+            error: new Error('Error object returned on ccc run'),
+            result,
+          });
+        } else {
+          dispatch({
+            type: actionConstants.CCC_RUN_RESPONSE,
+            runId,
+            widgetId,
+            result,
+          });
+        }
+        // TODO: pipe data back into the state
+        // don't forget to check errors
       })
       .catch((err) => {
         console.error(err);
         dispatch({
           type: actionConstants.CCC_RUN_ERROR,
-          sessionId,
+          runId,
           widgetId,
-          error: err
+          error: err,
         });
       });
   };
