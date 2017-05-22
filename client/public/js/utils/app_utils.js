@@ -24,8 +24,8 @@ const appUtils = {
    * @param {String} [extension]
    * @returns {Array}
    */
-  processInput: async function processInput(appId, inputString, extension) {
-    let inputPipeDatas = await apiUtils.processInput(appId, inputString, extension);
+  processInput: async function processInput(widget, inputString, extension) {
+    let inputPipeDatas = await apiUtils.processInput(widget, inputString, extension);
 
     // Fetch any json files
     inputPipeDatas = await appUtils.fetchPipeDataJson(inputPipeDatas);

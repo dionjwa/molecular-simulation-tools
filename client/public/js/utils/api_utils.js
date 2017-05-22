@@ -142,12 +142,14 @@ const apiUtils = {
 
   /**
    * Process the input given by the user and return processed input
-   * @param appId {String}
+   * @param widget {Object} Widget object
    * @param input {String} PDB, IUPAC, InChi, SMILES
    * @param extension {String} Optional
    * @returns {Promise}
    */
-  processInput(appId, input, extension) {
+  processInput(widget, input, extension) {
+    console.log(` processInput widget=${widget} extension=${extension}`);
+
     /*
      * For PDB, a sent input looks like:
      *   {
@@ -172,27 +174,44 @@ const apiUtils = {
       nameExtension = 'json';
     }
 
-    const data = {
-      inputs: [
-        {
-          name: `input.${nameExtension}`,
-          type: 'inline',
-          value,
-        },
-      ],
+    const jobData = JSON.parse(JSON.stringify(widget.config));
+    jobData.inputs = {};
+    jobData.inputs[`input.${nameExtension}`] = { value };
+    jobData.parameters = {
+      maxDuration: 600,
+      cpus: 1,
     };
-    return axios.post(`${API_URL}/v1/structure/executeApp${appId}Step0`, data)
+    jobData.inputsPath = '/inputs';
+
+    for (let i = 0; i < jobData.command.length; i += 1) {
+      if (jobData.command[i].indexOf('input.pdb')) {
+        jobData.command[i] = jobData.command[i].replace('input.pdb', `input.${nameExtension}`);
+      }
+    }
+
+    console.log('jobData\n', JSON.stringify(jobData));
+
+    return axios.post(`${API_URL}/v1/ccc/run/turbo`, jobData)
       .then((res) => {
-        if (!res.data.success) {
+        console.log(res);
+        if (res.data.error) {
           const error = new Error('Failed to process this input, please try again.');
           error.result = res.data;
           throw error;
         }
 
-        return new IList(res.data.outputs.map(output =>
-          new PipeDataRecord(Object.assign({}, output, {
-            pipeName: output.name,
-            widgetId: widgetsConstants.LOAD,
+        if (res.data.exitCode !== 0) {
+          const error = new Error('Failed to process this input, please try again.');
+          error.result = res.data;
+          throw error;
+        }
+
+        console.log('Object.keys(res.data.outputs)=', Object.keys(res.data.outputs));
+        return new IList(Object.keys(res.data.outputs).map(outputKey =>
+          new PipeDataRecord(Object.assign({}, {
+            pipeName: outputKey,
+            widgetId: widget.id,
+            value: res.data.outputs[outputKey],
           })),
         ));
       });

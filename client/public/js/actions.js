@@ -270,7 +270,8 @@ export function selectInputFile(file, appId, runId, pipeDatasByWidget) {
   };
 }
 
-export function submitInputString(inputString, appId, runId, pipeDatasByWidget) {
+export function submitInputString(inputString, widget, runId, pipeDatasByWidget) {
+  console.log('submitInputString widget', widget);
   return async function submitInputStringDispatch(dispatch) {
     dispatch({
       type: actionConstants.SUBMIT_INPUT_STRING,
@@ -291,7 +292,7 @@ export function submitInputString(inputString, appId, runId, pipeDatasByWidget) 
       const newInput = pdbDownload ? pdbDownload.pdb : inputString;
       const extension = pdbDownload ? '.pdb' : '';
       let inputPipeDatas = await appUtils.processInput(
-        appId, newInput, extension,
+        widget, newInput, extension,
       );
 
       // If only one ligand, select it

@@ -66,9 +66,9 @@ function mapDispatchToProps(dispatch) {
         dispatch(selectInputFile(file, appId, runId, pipeDatasByWidget));
       };
     },
-    submitInputString(appId, runId, pipeDatasByWidget) {
-      return (input) => {
-        dispatch(submitInputString(input, appId, runId, pipeDatasByWidget));
+    submitInputString(runId, pipeDatasByWidget) {
+      return (widget, input) => {
+        dispatch(submitInputString(input, widget, runId, pipeDatasByWidget));
       };
     },
     submitEmail(appId, runId, pipeDatasByWidget) {
@@ -100,7 +100,6 @@ function mergeProps(stateProps, dispatchProps) {
       stateProps.app.run.pipeDatasByWidget,
     ),
     submitInputString: dispatchProps.submitInputString(
-      stateProps.app.id,
       stateProps.app.run.id,
       stateProps.app.run.pipeDatasByWidget,
     ),

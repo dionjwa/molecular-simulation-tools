@@ -1,5 +1,6 @@
 import React from 'react';
-import { statusConstants, jsonrpcConstants } from 'molecular-design-applications-shared';
+// import { statusConstants, jsonrpcConstants } from 'molecular-design-applications-shared';
+import { statusConstants } from 'molecular-design-applications-shared';
 import Canceled from './canceled';
 import Errored from './errored';
 import Snackbar from './snackbar';
@@ -69,38 +70,40 @@ class AppRouter extends React.Component {
 
     if (runId) {
       /* Websocket for getting session info */
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
-      const port = window.location.port !== '' ? `:${window.location.port}` : '';
-      const wsUrl = `${protocol}//${hostname}${port}`;
-      this.ws = new WebSocket(wsUrl, {
-        perMessageDeflate: false,
-      });
-      this.ws.on('open', () => {
-        // See README.md
-        this.ws.send(JSON.stringify({
-          jsonrpc: '2.0',
-          method: jsonrpcConstants.SESSION,
-          params: { sessionId: runId },
-        }));
-      });
+      // const protocol = window.location.protocol === 'http:' ? 'ws:' : 'wss:';
+      // const hostname = window.location.hostname;
+      // const port = window.location.port !== '' ? `:${window.location.port}` : '';
+      // const wsUrl = `${protocol}//${hostname}${port}`;
+      // this.ws = new WebSocket(wsUrl, {
+      //   perMessageDeflate: false,
+      // });
+      // this.ws.on('open', () => {
+      //   console.log('WS open');
+      //   // See README.md
+      //   this.ws.send(JSON.stringify({
+      //     jsonrpc: '2.0',
+      //     method: jsonrpcConstants.SESSION,
+      //     params: { sessionId: runId },
+      //   }));
+      // });
 
-      this.ws.on('error', (err) => {
-        console.error('Websocket error', err);
-      });
+      // this.ws.on('error', (err) => {
+      //   console.error('Websocket error', err);
+      // });
 
-      this.ws.on('message', (data) => {
-        const jsonrpc = JSON.parse(data);
-        // See README.md
-        switch (jsonrpc.method) {
-          case jsonrpcConstants.SESSION_UPDATE:
-            // TODO: update the widget pipe data here
-            break;
-          default:
-            console.warn({ message: 'Unhandled websocket message', data });
-            break;
-        }
-      });
+      // this.ws.on('message', (data) => {
+      //   console.log('Got WS messsage', data);
+      //   const jsonrpc = JSON.parse(data);
+      //   // See README.md
+      //   switch (jsonrpc.method) {
+      //     case jsonrpcConstants.SESSION_UPDATE:
+      //       // TODO: update the widget pipe data here
+      //       break;
+      //     default:
+      //       console.warn({ message: 'Unhandled websocket message', data });
+      //       break;
+      //   }
+      // });
     }
   }
 

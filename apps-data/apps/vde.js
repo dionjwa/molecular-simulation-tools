@@ -16,7 +16,7 @@ module.exports = {
       type: widgetsConstants.LOAD,
       title: 'Load Molecule',
       config: {
-        image: 'mst:workflows-0.0.alpha4',
+        image: 'avirshup/mst:workflows-0.0.1b6',
         command: ['vde', '--preprocess', '/inputs/input.pdb', '--outputdir', '/outputs/'],
       },
       outputs: [

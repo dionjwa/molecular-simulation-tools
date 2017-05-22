@@ -46,6 +46,7 @@ function Status(props) {
         case widgetsConstants.LOAD: {
           selection = (
             <StatusLoad
+              widget={widget}
               fetchingData={props.app.run.fetchingData}
               inputData={pipeUtils.getPdb(outputPipeDatas)}
               inputFileError={props.app.run.inputFileError}
@@ -62,6 +63,7 @@ function Status(props) {
         case widgetsConstants.RUN: {
           selection = (
             <StatusRun
+              widget={widget}
               clickRun={props.clickRun}
               emailError={props.app.run.emailError}
               inputPipeDatas={inputPipeDatas}
@@ -77,6 +79,7 @@ function Status(props) {
           const selectedLigand = pipeUtils.getSelectedLigand(pipeDatas);
           selection = (
             <StatusLigandSelection
+              widget={widget}
               changeLigandSelection={props.changeLigandSelection}
               ligandNames={pipeUtils.getLigandNames(pipeDatas)}
               runCompleted={runCompleted}
@@ -108,6 +111,7 @@ function Status(props) {
 
           selection = (
             <StatusResults
+              widget={widget}
               morph={props.morph}
               numberOfPdbs={numberOfPdbs}
               onClickColorize={props.onClickColorize}

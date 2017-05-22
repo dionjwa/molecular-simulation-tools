@@ -18,8 +18,11 @@ services:
       - ./server/services:/app/server/services
       - ./shared:/app/shared
       - ./tmp:/tmp
+      - ./apps-data:/app/server/node_modules/molecular-simulation-tools-apps
+
       # Uncomment this if you want to do client development
-      # - ./client/dist:/app/client/dist
+      - ./client/dist:/app/client/dist
+      # - ./client/node_modules:/app/client/node_modules
     command: ["nodemon", "-e", "js,json,www", "-w", "./", "-w", "./bin/www.js", "bin/www.js"]
     environment:
       PGHOST: db
